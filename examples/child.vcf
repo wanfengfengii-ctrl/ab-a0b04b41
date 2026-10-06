@@ -1,0 +1,7 @@
+##fileformat=VCFv4.2
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=PS,Number=1,Type=Integer,Description="Phase set">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	kid
+chr1	100	.	A	T	.	.	.	GT:PS	0|0:1
+chr1	101	.	A	T	.	.	.	GT:PS	0|1:1
+chr1	102	.	A	T	.	.	.	GT:PS	1|0:1

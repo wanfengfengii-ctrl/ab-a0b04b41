@@ -1,0 +1,41 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: trio-haplotype-audit:latest
+    container_name: trio-api
+    environment:
+      # 容器内固定监听 8080；宿主机端口由 HOST_PORT 控制
+      PORT: "8080"
+      HOST: "0.0.0.0"
+    ports:
+      # 宿主机端口可配置：在 .env 或环境中设置 HOST_PORT（默认 8080）
+      - "${HOST_PORT:-8080}:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  # 一次性校验服务：汇总 TypeScript 构建、代码测试、三人组 API 冒烟结果，
+  # 全部通过退出码 0，任一失败退出码 1，随后容器自行退出。
+  # 常用：docker compose run --rm verify
+  verify:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    image: trio-haplotype-audit-verify:latest
+    container_name: trio-verify
+    command: ["sh", "scripts/verify.sh"]
+    environment:
+      # 对已健康的 api 服务执行冒烟（复用 compose 网络）
+      SMOKE_BASE_URL: "http://api:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: "no"

@@ -1,0 +1,23 @@
+{
+  "name": "trio-haplotype-audit",
+  "version": "1.0.0",
+  "description": "遗传质控平台：父母-子代三人组已定相变异单倍型连续传递裁决 API",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "pretest": "npm run build",
+    "test": "node --test dist/tests/*.test.js",
+    "start": "node dist/server.js",
+    "smoke": "node dist/scripts/smoke.js",
+    "verify": "sh scripts/verify.sh"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}
