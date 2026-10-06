@@ -1,0 +1,35 @@
+services:
+  api:
+    build: .
+    image: trio-haplotype-audit:latest
+    environment:
+      PORT: "8080"
+    ports:
+      # Host-side port is configurable via HOST_PORT (defaults to 8080).
+      - "${HOST_PORT:-8080}:8080"
+    healthcheck:
+      test:
+        - "CMD"
+        - "node"
+        - "-e"
+        - "fetch('http://127.0.0.1:'+(process.env.PORT||8080)+'/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  # One-shot verification: TypeScript build + unit tests + live API smoke test
+  # against the api service. Exits 0 only if all three pass, then stops.
+  verify:
+    build: .
+    image: trio-haplotype-audit:latest
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      BASE_URL: "http://api:8080"
+    entrypoint: ["sh", "-c"]
+    command:
+      - "npm run build && npm test && npm run smoke"
+    restart: "no"
